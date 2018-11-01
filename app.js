@@ -6,6 +6,7 @@ const passport          = require("passport");
 const LocalStrategy     = require("passport-local");
 const methodOverride    = require("method-override");
 const flash             = require("connect-flash");
+const helmet            = require('helmet');
 
 const User              = require("./models/user");
 const seedDB            = require("./seeds");
@@ -14,9 +15,11 @@ const commentRoutes     = require("./routes/comments");
 const campgroundRoutes  = require("./routes/campgrounds");
 const indexRoutes        = require("./routes/index");
 
-const uri = process.env.DATABASEURL;
+app.use(helmet());
 
-mongoose.connect(uri, { useNewUrlParser: true }, (err, db) =>{
+const uri = process.env.DATABASEURL || 'mongodb://localhost/yelp_camp';
+
+mongoose.connect(uri, { useNewUrlParser: true }, (err) =>{
     if(err) {
         console.log(err);
     } else {
@@ -24,7 +27,7 @@ mongoose.connect(uri, { useNewUrlParser: true }, (err, db) =>{
     }
     
 });
-//mongoose.connect("mongodb://vimata:15icarus@ds235833.mlab.com:35833/yelp_campd", { useNewUrlParser: true });
+
 
 app.use(bodyParser.urlencoded({extended: true}));
 app.set("view engine", "ejs");
@@ -58,6 +61,8 @@ app.use((req, res, next) => {
 app.use(indexRoutes);
 app.use("/campgrounds", campgroundRoutes);
 app.use("/campgrounds/:id/comments", commentRoutes);
+
+
 
 
 app.listen(process.env.PORT, process.env.IP, function(){
