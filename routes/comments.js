@@ -18,7 +18,7 @@ router.get("/new",middleware.isLoggedIn, function(req, res){
 
 //Comments CREATE
 
-router.post("/",middleware.isLoggedIn, function(req, res){
+router.post("/",middleware.isLoggedIn, function(req, res, next){
    //lookup campground using ID
    Campground.findById(req.params.id, function(err, campground){
        if(err){
@@ -26,8 +26,9 @@ router.post("/",middleware.isLoggedIn, function(req, res){
            res.redirect("/campgrounds");
        } else {
         Comment.create(req.body.comment, function(err, comment){
-           if(err){
+           if(err || comment.text ===""){
                console.log(err);
+               next(err);
            } else {
                // add username and id to comment
                comment.author.id = req.user._id;
