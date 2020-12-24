@@ -1,48 +1,54 @@
-const express           =require("express");
-const bodyParser        = require("body-parser");
-const app               = express();
-const mongoose          = require("mongoose");
-const passport          = require("passport");
-const LocalStrategy     = require("passport-local");
-const methodOverride    = require("method-override");
-const flash             = require("connect-flash");
-const helmet            = require('helmet');
+const express = require('express');
+const bodyParser = require('body-parser');
+const app = express();
+const mongoose = require('mongoose');
+const passport = require('passport');
+const LocalStrategy = require('passport-local');
+const methodOverride = require('method-override');
+const flash = require('connect-flash');
+const helmet = require('helmet');
 
-const User              = require("./models/user");
-const seedDB            = require("./seeds");
+const User = require('./models/user');
+//const seedDB            = require("./seeds");
 
-const commentRoutes     = require("./routes/comments");
-const campgroundRoutes  = require("./routes/campgrounds");
-const indexRoutes        = require("./routes/index");
+const commentRoutes = require('./routes/comments');
+const campgroundRoutes = require('./routes/campgrounds');
+const indexRoutes = require('./routes/index');
 
 app.use(helmet());
 
-const uri = process.env.DATABASEURL || 'mongodb://localhost/yelp_camp';
+const uri =
+  process.env.DATABASEURL ||
+  'mongodb+srv://vimata:Icarus15@yelp-campd.qg5fn.mongodb.net/yelp_campd?retryWrites=true&w=majority';
 
-mongoose.connect(uri, { useNewUrlParser: true }, (err) =>{
-    if(err) {
-        console.log(err);
+mongoose.connect(
+  uri,
+  { useNewUrlParser: true, useUnifiedTopology: true },
+  (err) => {
+    if (err) {
+      console.log(err);
     } else {
-        console.log('Connected to ' + uri);
+      console.log('Connected to MongoDB...');
     }
-    
-});
+  }
+);
 
-
-app.use(bodyParser.urlencoded({extended: true}));
-app.set("view engine", "ejs");
-app.use(express.static(__dirname + "/public"));
+app.use(bodyParser.urlencoded({ extended: true }));
+app.set('view engine', 'ejs');
+app.use(express.static(__dirname + '/public'));
 app.use(methodOverride('_method'));
 app.use(flash());
 app.locals.moment = require('moment');
 //seedDB();
 
 //PASSPORT CONFIGURATION
-app.use(require("express-session")({
-    secret: "My name is Gandolf",
+app.use(
+  require('express-session')({
+    secret: 'My name is Gandolf',
     resave: false,
-    saveUninitialized: false 
-}));
+    saveUninitialized: false,
+  })
+);
 app.use(passport.initialize());
 app.use(passport.session());
 passport.use(new LocalStrategy(User.authenticate()));
@@ -51,23 +57,19 @@ passport.deserializeUser(User.deserializeUser());
 
 // user available to all routes
 app.use((req, res, next) => {
-    res.locals.currentUser = req.user;
-    res.locals.error = req.flash('error');
-    res.locals.success = req.flash('success');
-    next();
+  res.locals.currentUser = req.user;
+  res.locals.error = req.flash('error');
+  res.locals.success = req.flash('success');
+  next();
 });
 
 // require routes
 app.use(indexRoutes);
-app.use("/campgrounds", campgroundRoutes);
-app.use("/campgrounds/:id/comments", commentRoutes);
+app.use('/campgrounds', campgroundRoutes);
+app.use('/campgrounds/:id/comments', commentRoutes);
 
+const PORT = process.env.PORT || 7000;
 
-
-
-app.listen(process.env.PORT, process.env.IP, function(){
-    console.log("YelpCamp Server Has Started");
+app.listen(PORT, function () {
+  console.log('YelpCamp Server Has Started on ' + PORT);
 });
-
-
-
