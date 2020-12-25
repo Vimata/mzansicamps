@@ -7,9 +7,11 @@ const LocalStrategy = require('passport-local');
 const methodOverride = require('method-override');
 const flash = require('connect-flash');
 const helmet = require('helmet');
-
+const mongoURI = require('./config/db');
 const User = require('./models/user');
 //const seedDB            = require("./seeds");
+
+console.log(mongoURI);
 
 const commentRoutes = require('./routes/comments');
 const campgroundRoutes = require('./routes/campgrounds');
@@ -17,9 +19,7 @@ const indexRoutes = require('./routes/index');
 
 app.use(helmet());
 
-const uri =
-  process.env.DATABASEURL ||
-  'mongodb+srv://vimata:Icarus15@yelp-campd.qg5fn.mongodb.net/yelp_campd?retryWrites=true&w=majority';
+const uri = process.env.DATABASEURL || mongoURI;
 
 mongoose.connect(
   uri,
